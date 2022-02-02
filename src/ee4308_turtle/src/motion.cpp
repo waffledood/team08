@@ -150,9 +150,9 @@ int main(int argc, char **argv)
 
         // declare / initialise other variables
         double ang_rbt = 0; // robot always start at zero.
-        double lin_vel = 0, ang_vel = 0;
         double prev_time = ros::Time::now().toSec();
         double dt = 0;
+
         ////////////////// DECLARE VARIABLES HERE //////////////////
         // variables relating to Odometry Motion Model 
         double wheel_l_prev = 10, wheel_r_prev = 10;
@@ -160,7 +160,7 @@ int main(int argc, char **argv)
         double linVel_odom = 0, angVel_odom = 0;
 
         // variables relating to Weighted Average Velocity
-        double linVel_filtered = 0, angVel_filtered = 0;
+        double lin_vel = 0, ang_vel = 0;
 
         // variables relating to "Finding Displacements" 
         double turnRadius;
@@ -188,31 +188,19 @@ int main(int argc, char **argv)
             wheel_r_prev = wheel_r;
 
             ////////////////// MOTION FILTER HERE //////////////////
-            // linVel_filtered = (weight_odom_v * linVel_odom) + (weight_imu_v * );
-            linVel_filtered = (weight_odom_v * linVel_odom + weight_imu_v * imu_lin_acc * dt) / (1 - weight_imu_v);
-            angVel_filtered = (weight_odom_w * angVel_odom) + (weight_imu_w * imu_ang_vel);
+            lin_vel = (weight_odom_v * linVel_odom + weight_imu_v * imu_lin_acc * dt) / (1 - weight_imu_v);
+            ang_vel = (weight_odom_w * angVel_odom) + (weight_imu_w * imu_ang_vel);
 
             ////////////////// Finding Displacements //////////////////
-            ang_rbt = ang_rbt_prev + (angVel_filtered * dt);
-            turnRadius = linVel_filtered / angVel_filtered;
-            // computation of x_t
-            // if (abs(angVel_filtered) < straight_thresh) {
-            //     pos_rbt.x = pos_rbt_x_prev + turnRadius * (-sin(ang_rbt_prev) + sin(ang_rbt));
-            // } else {
-            //     pos_rbt.x = pos_rbt_x_prev + (linVel_filtered * dt * cos(ang_rbt_prev));
-            // }
-            // // computation of y_t
-            // if (abs(angVel_filtered) < straight_thresh) {
-            //     pos_rbt.y = pos_rbt_y_prev + turnRadius * (cos(ang_rbt_prev) - cos(ang_rbt));
-            // } else {
-            //     pos_rbt.y = pos_rbt_y_prev + (linVel_filtered * dt * sin(ang_rbt_prev));
-            // }
-            if (abs(angVel_filtered) > straight_thresh) {
+            ang_rbt = ang_rbt_prev + (ang_vel * dt);
+            turnRadius = lin_vel / ang_vel;
+            // computation of x_t & y_t
+            if (abs(ang_vel) > straight_thresh) {
                 pos_rbt.x = pos_rbt_x_prev + turnRadius * (-sin(ang_rbt_prev) + sin(ang_rbt));
                 pos_rbt.y = pos_rbt_y_prev + turnRadius * (cos(ang_rbt_prev) - cos(ang_rbt));
             } else {
-                pos_rbt.x = pos_rbt_x_prev + (linVel_filtered * dt * cos(ang_rbt_prev));
-                pos_rbt.y = pos_rbt_y_prev + (linVel_filtered * dt * sin(ang_rbt_prev));
+                pos_rbt.x = pos_rbt_x_prev + (lin_vel * dt * cos(ang_rbt_prev));
+                pos_rbt.y = pos_rbt_y_prev + (lin_vel * dt * sin(ang_rbt_prev));
             }
             // updating of variables tracking previous variables' values & occurrences 
             ang_rbt_prev = ang_rbt;
