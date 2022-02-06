@@ -10,11 +10,11 @@ main_iter_rate: 25
 
 # motion
 verbose_motion: true
-use_internal_odom: true #true by default (uses the ground truth of the simulation)
+use_internal_odom: false #true by default -> uses the ground truth of the simulation)
 axle_track: 0.16
 wheel_radius: 0.033
-weight_odom_v: 0.5
-weight_odom_w: 0.5
+weight_odom_v: 0.9
+weight_odom_w: 0.1
 straight_thresh: 0.05
 motion_iter_rate: 50
 
