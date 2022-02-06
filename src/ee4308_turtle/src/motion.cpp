@@ -129,6 +129,8 @@ int main(int argc, char **argv)
         // Subscribers
         ros::Subscriber sub_wheels = nh.subscribe("joint_states", 1, &cbWheels);
         ros::Subscriber sub_imu = nh.subscribe("imu", 1, &cbImu);
+        // TODO - Added Subscriber of "odom" 
+        ros::Subscriber sub_odom = nh.subscribe("odom", 1, &cbOdom);
 
         // initialise rate
         ros::Rate rate(motion_iter_rate); // higher rate for better estimation
@@ -155,7 +157,8 @@ int main(int argc, char **argv)
 
         ////////////////// DECLARE VARIABLES HERE //////////////////
         // variables relating to Odometry Motion Model 
-        double wheel_l_prev = 10, wheel_r_prev = 10;
+        //double wheel_l_prev = 10, wheel_r_prev = 10;
+        double wheel_l_prev = wheel_l, wheel_r_prev = wheel_r;
         double wheel_l_diff = 0, wheel_r_diff = 0;
         double linVel_odom = 0, angVel_odom = 0;
 
@@ -166,6 +169,10 @@ int main(int argc, char **argv)
         double turnRadius;
         double ang_rbt_prev = 0;
         double pos_rbt_x_prev = pos_rbt.x, pos_rbt_y_prev = pos_rbt.y;
+
+        // debug variables 
+        double odom_linVel = 0, odom_angVel = 0;
+        double imu_linVel = 0, imu_angVel = 0;
 
         // loop
         while (ros::ok() && nh.param("run", true))
@@ -190,6 +197,12 @@ int main(int argc, char **argv)
             ////////////////// MOTION FILTER HERE //////////////////
             lin_vel = (weight_odom_v * linVel_odom + weight_imu_v * imu_lin_acc * dt) / (1 - weight_imu_v);
             ang_vel = (weight_odom_w * angVel_odom) + (weight_imu_w * imu_ang_vel);
+
+            // debug variables 
+            odom_linVel = linVel_odom;
+            odom_angVel = angVel_odom;
+            imu_linVel = odom_linVel + (imu_lin_acc * dt);
+            imu_angVel = imu_ang_vel;
 
             ////////////////// Finding Displacements //////////////////
             ang_rbt = ang_rbt_prev + (ang_vel * dt);
@@ -217,7 +230,7 @@ int main(int argc, char **argv)
 
             if (verbose)
             {
-                ROS_INFO("TMOTION: Pos(%7.3f, %7.3f)  Ang(%6.3f)",
+                ROS_INFO("Actual Motion: Pos(%7.3f, %7.3f)  Ang(%6.3f)",
                          pos_rbt.x, pos_rbt.y, ang_rbt);
 
                 // ground truth 
@@ -227,7 +240,21 @@ int main(int argc, char **argv)
                 double cosy_cosp = 1 - 2 * (q.y * q.y + q.z * q.z);
                 ROS_INFO("TMOTION: Pos(%7.3f, %7.3f)  Ang(%6.3f)  FVel(%6.3f)  AVel(%6.3f)",
                          pose_rbt.pose.position.x, pose_rbt.pose.position.y, atan2(siny_cosp, cosy_cosp),
-                         msg_odom.twist.twist.linear.x, msg_odom.twist.twist.angular.z);*/
+                         msg_odom.twist.twist.linear.x, msg_odom.twist.twist.angular.z);
+                */
+                // get ang_rbt from quaternion
+                
+
+                auto &q = msg_odom.pose.pose.orientation;
+                double siny_cosp = 2 * (q.w * q.z + q.x * q.y); 
+                double cosy_cosp = 1 - 2 * (q.y * q.y + q.z * q.z);
+
+                ROS_INFO("Ground Truth : Pos(%7.3f, %7.3f)  Ang(%6.3f)  FVel(%6.3f)  AVel(%6.3f)",
+                         msg_odom.pose.pose.position.x, msg_odom.pose.pose.position.y, atan2(siny_cosp, cosy_cosp),
+                         msg_odom.twist.twist.linear.x, msg_odom.twist.twist.angular.z);
+
+                ROS_INFO("Just IMU: LinVel: %3.3f, AngVel: %6.3f", imu_linVel, imu_angVel);
+                ROS_INFO("Encoders: LinVel: %3.3f, AngVel: %6.3f", odom_linVel, odom_angVel);
             }
 
             // sleep until the end of the required frequency
