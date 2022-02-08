@@ -104,6 +104,9 @@ int main(int argc, char **argv)
     double prev_time = ros::Time::now().toSec();
 
     ////////////////// DECLARE VARIABLES HERE //////////////////
+    double pos_error = 0, ang_error = 0, pos_error_prev = 0, ang_error_prev = 0;
+    double P_lin, I_lin, D_lin;
+    double P_ang, I_ang, D_ang;
 
     ROS_INFO(" TMOVE : ===== BEGIN =====");
 
@@ -121,6 +124,23 @@ int main(int argc, char **argv)
             prev_time += dt;
 
             ////////////////// MOTION CONTROLLER HERE //////////////////
+            // Computing PID for linear velocity 
+            pos_error = dist_euc(pos_rbt, target);
+            P_lin = Kp_lin * pos_error;
+            I_lin += (Ki_lin * dt);
+            D_lin = Kd_lin * (pos_error - pos_error_prev) / dt;
+
+            // Computing PID for angular velocity 
+            ang_error = limit_angle(heading(pos_rbt, target) - ang_rbt);
+            P_ang = Kp_ang * ang_error;
+            I_ang += (Ki_ang * dt);
+            D_ang = Kd_ang * (ang_error - ang_error_prev) / dt;
+
+            // Constrain for linear & angular velocity
+
+            // Updating variables tracking variables' previous occurrences 
+            pos_error_prev = pos_error;
+            ang_error_prev = ang_error;
 
             // publish speeds
             msg_cmd.linear.x = cmd_lin_vel;
