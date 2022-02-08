@@ -9,8 +9,8 @@ log_odds_cap: 20
 main_iter_rate: 25 
 
 # motion
-verbose_motion: true
-use_internal_odom: false #true by default -> uses the ground truth of the simulation)
+verbose_motion: false
+use_internal_odom: true #true by default -> uses the ground truth of the simulation)
 axle_track: 0.16
 wheel_radius: 0.033
 weight_odom_v: 0.9
@@ -19,9 +19,9 @@ straight_thresh: 0.05
 motion_iter_rate: 50
 
 # move
-enable_move: false
+enable_move: true
 verbose_move: true
-Kp_lin: 1.0
+Kp_lin: 0.6
 Ki_lin: 0.0
 Kd_lin: 0.0
 max_lin_vel: 0.22 # max is 0.22
