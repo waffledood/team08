@@ -128,7 +128,17 @@ int main(int argc, char **argv)
             prev_time += dt;
 
             ////////////////// MOTION CONTROLLER HERE //////////////////
-            // Computing PID for linear velocity 
+            // Checking if target has been published 
+            if (target.x == 0 && target.y == 0) {
+                target_alt = pos_rbt;
+                // publish speeds
+                msg_cmd.linear.x = 0;
+                msg_cmd.angular.z = 0;
+                pub_cmd.publish(msg_cmd);
+            } else {
+                target_alt = target;
+            
+                // Computing PID for linear velocity //
             pos_error = dist_euc(pos_rbt, target);
             P_lin = Kp_lin * pos_error;
             I_lin += (Ki_lin * dt);
