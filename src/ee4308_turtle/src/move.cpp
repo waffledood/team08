@@ -173,7 +173,11 @@ int main(int argc, char **argv)
             // verbose
             if (verbose)
             {
-                ROS_INFO(" TMOVE :  FV(%6.3f) AV(%6.3f)", cmd_lin_vel, cmd_ang_vel);
+                ROS_INFO(" TMOVE : FV(%2.3f) AV(%2.3f)", cmd_lin_vel, cmd_ang_vel);
+                ROS_INFO(" pos_error: (%2.3f), ang_error: (%2.3f)", pos_error, ang_error);
+                ROS_INFO(" Target_alt: (%3.3f, %3.3f)", target_alt.x, target_alt.y);
+                ROS_INFO(" Target: (%3.3f, %3.3f)", target.x, target.y);
+                ROS_INFO(" Pose_rbt: (%3.3f, %3.3f)", pos_rbt.x, pos_rbt.y);
             }
 
             // wait for rate
