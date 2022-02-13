@@ -163,7 +163,7 @@ int main(int argc, char **argv)
 
                 // Coupling linear velocity with angular error //
                 // if the angular error is > 45 degrees or < -45 degrees 
-                if (abs(ang_error) > (M_PI / 4) || abs(ang_error) < -(M_PI / 4)) {
+                if (ang_error > (M_PI / 4) || ang_error < -(M_PI / 4)) {
                     cmd_lin_vel = 0;
                 }
 
