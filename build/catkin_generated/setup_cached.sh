@@ -7,7 +7,9 @@
 # new environment variables
 
 # modified environment variables
-export CMAKE_PREFIX_PATH="/home/haikal/a446b/devel:$CMAKE_PREFIX_PATH"
-export PWD='/home/haikal/a446b/build'
-export ROSLISP_PACKAGE_DIRECTORIES="/home/haikal/a446b/devel/share/common-lisp:$ROSLISP_PACKAGE_DIRECTORIES"
-export ROS_PACKAGE_PATH="/home/haikal/a446b/src:$ROS_PACKAGE_PATH"
+export CMAKE_PREFIX_PATH="/home/haikal/team08/devel:$CMAKE_PREFIX_PATH"
+export LD_LIBRARY_PATH="/home/haikal/team08/devel/lib:$LD_LIBRARY_PATH"
+export PKG_CONFIG_PATH="/home/haikal/team08/devel/lib/pkgconfig:$PKG_CONFIG_PATH"
+export PWD='/home/haikal/team08/build'
+export ROSLISP_PACKAGE_DIRECTORIES="/home/haikal/team08/devel/share/common-lisp:$ROSLISP_PACKAGE_DIRECTORIES"
+export ROS_PACKAGE_PATH="/home/haikal/a446b/src:/home/haikal/team08/src:$ROS_PACKAGE_PATH"

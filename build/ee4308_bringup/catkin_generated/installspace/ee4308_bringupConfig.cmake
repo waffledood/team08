@@ -67,14 +67,14 @@ set(ee4308_bringup_CONFIG_INCLUDED TRUE)
 
 # set variables for source/devel/install prefixes
 if("FALSE" STREQUAL "TRUE")
-  set(ee4308_bringup_SOURCE_PREFIX /home/haikal/a446b/src/ee4308_bringup)
-  set(ee4308_bringup_DEVEL_PREFIX /home/haikal/a446b/devel)
+  set(ee4308_bringup_SOURCE_PREFIX /home/haikal/team08/src/ee4308_bringup)
+  set(ee4308_bringup_DEVEL_PREFIX /home/haikal/team08/devel)
   set(ee4308_bringup_INSTALL_PREFIX "")
   set(ee4308_bringup_PREFIX ${ee4308_bringup_DEVEL_PREFIX})
 else()
   set(ee4308_bringup_SOURCE_PREFIX "")
   set(ee4308_bringup_DEVEL_PREFIX "")
-  set(ee4308_bringup_INSTALL_PREFIX /home/haikal/a446b/install)
+  set(ee4308_bringup_INSTALL_PREFIX /home/haikal/team08/install)
   set(ee4308_bringup_PREFIX ${ee4308_bringup_INSTALL_PREFIX})
 endif()
 
@@ -154,7 +154,7 @@ foreach(library ${libraries})
     set(lib_path "")
     set(lib "${library}-NOTFOUND")
     # since the path where the library is found is returned we have to iterate over the paths manually
-    foreach(path /home/haikal/a446b/install/lib;/home/haikal/hector/devel/lib;/home/haikal/husky/devel/lib;/home/haikal/catkin_ws/devel/lib;/opt/ros/noetic/lib)
+    foreach(path /home/haikal/team08/install/lib;/home/haikal/hector/devel/lib;/home/haikal/husky/devel/lib;/home/haikal/catkin_ws/devel/lib;/opt/ros/noetic/lib)
       find_library(lib ${library}
         PATHS ${path}
         NO_DEFAULT_PATH NO_CMAKE_FIND_ROOT_PATH)
@@ -185,7 +185,7 @@ foreach(t ${ee4308_bringup_EXPORTED_TARGETS})
   endif()
 endforeach()
 
-set(depends "message_runtime;geometry_msgs;message_generation;nav_msgs;roscpp;rospy;sensor_msgs;std_msgs")
+set(depends "message_runtime;geometry_msgs;message_generation;nav_msgs;roscpp;rospy;sensor_msgs;std_msgs;tf2;tf2_ros")
 foreach(depend ${depends})
   string(REPLACE " " ";" depend_list ${depend})
   # the package name of the dependency must be kept in a unique variable so that it is not overwritten in recursive calls

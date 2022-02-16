@@ -1,4 +1,4 @@
-prefix=/home/haikal/a446b/install
+prefix=/home/haikal/team08/install
 
 Name: ee4308_turtle
 Description: Description of ee4308_turtle

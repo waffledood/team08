@@ -8,6 +8,12 @@
 
 /home/haikal/a446b/src/ee4308_turtle/include/ee4308_turtle/common.hpp
 
+/home/haikal/a446b/src/ee4308_turtle/src/common.cpp
+common.hpp
+/home/haikal/a446b/src/ee4308_turtle/src/common.hpp
+cmath
+-
+
 /home/haikal/a446b/src/ee4308_turtle/src/motion.cpp
 ros/ros.h
 -

@@ -1,3 +1,3 @@
 #!/bin/bash
-export WORLD="world20"
-export EE4308_TASK="labs"
+export WORLD="world22proj1"
+export EE4308_TASK="proj1"

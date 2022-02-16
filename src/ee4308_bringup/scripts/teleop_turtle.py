@@ -31,6 +31,9 @@ from __future__ import print_function
 import rospy
 from geometry_msgs.msg import Twist
 import sys, select, os
+
+import threading
+
 if os.name == 'nt':
   import msvcrt
 else:
@@ -60,6 +63,21 @@ a/d : increase/decrease angular velocity (Burger : ~ 2.84, Waffle and Waffle Pi 
 space key, s : force stop
 CTRL-C to quit
 """
+
+
+exitFlag = 0
+
+class threadCmdVel (threading.Thread):
+    def __init__(self, pub):
+        threading.Thread.__init__(self)
+        self.pub = pub
+    def run(self):
+        global twist
+        rate = rospy.Rate(20)
+        while not rospy.is_shutdown():
+            pub.publish(twist)
+            rate.sleep()
+
 
 def getKey():
     tty.setraw(sys.stdin.fileno())
@@ -115,6 +133,13 @@ if __name__=="__main__":
     try:
         print(msg)
         print(vels(0.0, 0.0, ''), end='\r')
+        
+        global twist
+        twist = Twist()
+        
+        tcv = threadCmdVel(pub)
+        tcv.start()
+        
         while(1):
             key = getKey()
             if key == 'w' :
@@ -133,9 +158,10 @@ if __name__=="__main__":
                     print(vels(target_linear_vel,target_angular_vel, key))
                     break
                     
-            twist = Twist()
 
-            twist.linear.x = target_linear_vel; twist.linear.y = 0.0; twist.linear.z = 0.0
+            twist.linear.x = target_linear_vel
+            twist.linear.y = 0.0
+            twist.linear.z = 0.0
             
             if abs(target_angular_vel) < 1e-5:
                 target_angular_vel = 0.0
@@ -143,10 +169,13 @@ if __name__=="__main__":
             if abs(target_linear_vel) < 1e-5:
                 target_linear_vel = 0.0
                 
-            twist.angular.x = 0.0; twist.angular.y = 0.0; twist.angular.z = target_angular_vel
+            twist.angular.x = 0.0
+            twist.angular.y = 0.0
+            twist.angular.z = target_angular_vel
             
             print(vels(target_linear_vel,target_angular_vel, key), end='\r')
-            pub.publish(twist)
+        
+        tcv.join()
 
     except Exception as e:
         print(e)
