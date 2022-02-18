@@ -1,3 +1,4 @@
-build/ee4308_turtle/CMakeFiles/*
 *.o
-/devel/lib/ee4308_turtle
+.vscode
+build
+devel
