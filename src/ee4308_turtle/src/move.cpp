@@ -6,6 +6,7 @@
 #include <geometry_msgs/PointStamped.h>
 #include <geometry_msgs/Twist.h>
 #include <std_msgs/Empty.h>
+#include <fstream>
 #include "common.hpp"
 
 bool target_changed = false;
@@ -35,6 +36,9 @@ int main(int argc, char **argv)
 {
     ros::init(argc, argv, "turtle_move");
     ros::NodeHandle nh;
+
+    std::ofstream data_file;
+    data_file.open("/home/selva/team08/data.text");
 
     // Get ROS Parameters
     bool enable_move;
@@ -113,6 +117,9 @@ int main(int argc, char **argv)
     double cmd_ang_vel_prev = 0;
     Position target_alt;
 
+    double prop;
+    bool hight = false, low = false;
+
     ROS_INFO(" TMOVE : ===== BEGIN =====");
 
     // main loop
@@ -156,16 +163,39 @@ int main(int argc, char **argv)
                 I_ang += (Ki_ang * dt);
                 D_ang = Kd_ang * (ang_error - ang_error_prev) / dt;
                 cmd_ang_vel = P_ang + I_ang + D_ang;
+
+                ROS_INFO("ANG_ERROR(%2.3f), CMD_LIN_VEL(%2.3f)", ang_error, cmd_lin_vel);
+
+                // Coupling Angular Error with Linear Velocity 
+                
+                 if (ang_error < M_PI/4 && ang_error > -M_PI/4) {
+                    
+                    prop = 1;
+                    cmd_lin_vel *= prop;
+
+                } else {
+
+                    prop = ang_error / M_PI;
+                    if (ang_error > 0) {
+                        cmd_lin_vel *= 1-prop;
+                    } else {
+                        cmd_lin_vel *= -(1+prop);
+                    }
+                    ROS_INFO("BACKWARD MOVEMENT"); 
+                }
+
                 // Constraint for angular velocity //
                 ang_acc = (cmd_ang_vel - cmd_ang_vel_prev) / dt;
                 constrained_ang_acc = sat(ang_acc, max_ang_acc);
                 cmd_ang_vel = sat(cmd_ang_vel + constrained_ang_acc * dt, max_lin_acc);
 
                 // Coupling linear velocity with angular error //
-                // if the angular error is > 45 degrees or < -45 degrees 
+                // if the angular error is > 45 degrees or < -45 degrees
+                /* 
                 if (ang_error > (M_PI / 4) || ang_error < -(M_PI / 4)) {
                     cmd_lin_vel = 0;
                 }
+                */
 
                 // Updating variables tracking variables' previous occurrences //
                 pos_error_prev = pos_error;
@@ -176,6 +206,9 @@ int main(int argc, char **argv)
                 msg_cmd.linear.x = cmd_lin_vel;
                 msg_cmd.angular.z = cmd_ang_vel;
                 pub_cmd.publish(msg_cmd);
+
+                // write to file
+                data_file << ros::Time::now().toSec() << "\t" << pos_error << "\t" << ang_error << "\t" << cmd_lin_vel << "\t" << cmd_ang_vel << "\t" << prop << std::endl;
             }
 
             // verbose
@@ -187,7 +220,7 @@ int main(int argc, char **argv)
                 ROS_INFO(" Target: (%3.3f, %3.3f)", target.x, target.y);
                 ROS_INFO(" Pose_rbt: (%3.3f, %3.3f)", pos_rbt.x, pos_rbt.y);
             }
-
+            
             // wait for rate
             rate.sleep();
         }

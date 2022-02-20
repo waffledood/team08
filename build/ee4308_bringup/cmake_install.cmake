@@ -1,8 +1,8 @@
-# Install script for directory: /home/haikal/a446b/src/ee4308_bringup
+# Install script for directory: /home/selva/team08/src/ee4308_bringup
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
-  set(CMAKE_INSTALL_PREFIX "/home/haikal/a446b/install")
+  set(CMAKE_INSTALL_PREFIX "/home/selva/team08/install")
 endif()
 string(REGEX REPLACE "/$" "" CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
 
@@ -38,17 +38,17 @@ if(NOT DEFINED CMAKE_CROSSCOMPILING)
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/pkgconfig" TYPE FILE FILES "/home/haikal/a446b/build/ee4308_bringup/catkin_generated/installspace/ee4308_bringup.pc")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/pkgconfig" TYPE FILE FILES "/home/selva/team08/build/ee4308_bringup/catkin_generated/installspace/ee4308_bringup.pc")
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
   file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/ee4308_bringup/cmake" TYPE FILE FILES
-    "/home/haikal/a446b/build/ee4308_bringup/catkin_generated/installspace/ee4308_bringupConfig.cmake"
-    "/home/haikal/a446b/build/ee4308_bringup/catkin_generated/installspace/ee4308_bringupConfig-version.cmake"
+    "/home/selva/team08/build/ee4308_bringup/catkin_generated/installspace/ee4308_bringupConfig.cmake"
+    "/home/selva/team08/build/ee4308_bringup/catkin_generated/installspace/ee4308_bringupConfig-version.cmake"
     )
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/ee4308_bringup" TYPE FILE FILES "/home/haikal/a446b/src/ee4308_bringup/package.xml")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/ee4308_bringup" TYPE FILE FILES "/home/selva/team08/src/ee4308_bringup/package.xml")
 endif()
 

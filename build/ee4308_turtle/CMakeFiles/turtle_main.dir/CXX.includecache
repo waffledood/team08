@@ -6,11 +6,11 @@
 
 #IncludeRegexTransform: 
 
-/home/haikal/a446b/src/ee4308_turtle/include/ee4308_turtle/common.hpp
+/home/selva/team08/src/ee4308_turtle/include/ee4308_turtle/common.hpp
 
-/home/haikal/a446b/src/ee4308_turtle/include/ee4308_turtle/grid.hpp
+/home/selva/team08/src/ee4308_turtle/include/ee4308_turtle/grid.hpp
 ros/ros.h
-/home/haikal/a446b/src/ee4308_turtle/include/ee4308_turtle/ros/ros.h
+/home/selva/team08/src/ee4308_turtle/include/ee4308_turtle/ros/ros.h
 cmath
 -
 vector
@@ -18,13 +18,13 @@ vector
 sensor_msgs/LaserScan.h
 -
 los.hpp
-/home/haikal/a446b/src/ee4308_turtle/include/ee4308_turtle/los.hpp
+/home/selva/team08/src/ee4308_turtle/include/ee4308_turtle/los.hpp
 common.hpp
-/home/haikal/a446b/src/ee4308_turtle/include/ee4308_turtle/common.hpp
+/home/selva/team08/src/ee4308_turtle/include/ee4308_turtle/common.hpp
 nav_msgs/OccupancyGrid.h
 -
 
-/home/haikal/a446b/src/ee4308_turtle/include/ee4308_turtle/los.hpp
+/home/selva/team08/src/ee4308_turtle/include/ee4308_turtle/los.hpp
 ros/ros.h
 -
 cmath
@@ -32,49 +32,49 @@ cmath
 vector
 -
 common.hpp
-/home/haikal/a446b/src/ee4308_turtle/include/ee4308_turtle/common.hpp
+/home/selva/team08/src/ee4308_turtle/include/ee4308_turtle/common.hpp
 
-/home/haikal/a446b/src/ee4308_turtle/include/ee4308_turtle/planner.hpp
+/home/selva/team08/src/ee4308_turtle/include/ee4308_turtle/planner.hpp
 ros/ros.h
-/home/haikal/a446b/src/ee4308_turtle/include/ee4308_turtle/ros/ros.h
+/home/selva/team08/src/ee4308_turtle/include/ee4308_turtle/ros/ros.h
 grid.hpp
-/home/haikal/a446b/src/ee4308_turtle/include/ee4308_turtle/grid.hpp
+/home/selva/team08/src/ee4308_turtle/include/ee4308_turtle/grid.hpp
 common.hpp
-/home/haikal/a446b/src/ee4308_turtle/include/ee4308_turtle/common.hpp
+/home/selva/team08/src/ee4308_turtle/include/ee4308_turtle/common.hpp
 vector
 -
 deque
 -
 
-/home/haikal/a446b/src/ee4308_turtle/include/ee4308_turtle/trajectory.hpp
+/home/selva/team08/src/ee4308_turtle/include/ee4308_turtle/trajectory.hpp
 common.hpp
-/home/haikal/a446b/src/ee4308_turtle/include/ee4308_turtle/common.hpp
+/home/selva/team08/src/ee4308_turtle/include/ee4308_turtle/common.hpp
 grid.hpp
-/home/haikal/a446b/src/ee4308_turtle/include/ee4308_turtle/grid.hpp
+/home/selva/team08/src/ee4308_turtle/include/ee4308_turtle/grid.hpp
 
-/home/haikal/a446b/src/ee4308_turtle/src/common.cpp
+/home/selva/team08/src/ee4308_turtle/src/common.cpp
 common.hpp
-/home/haikal/a446b/src/ee4308_turtle/src/common.hpp
+/home/selva/team08/src/ee4308_turtle/src/common.hpp
 cmath
 -
 
-/home/haikal/a446b/src/ee4308_turtle/src/grid.cpp
+/home/selva/team08/src/ee4308_turtle/src/grid.cpp
 grid.hpp
-/home/haikal/a446b/src/ee4308_turtle/src/grid.hpp
+/home/selva/team08/src/ee4308_turtle/src/grid.hpp
 
-/home/haikal/a446b/src/ee4308_turtle/src/los.cpp
+/home/selva/team08/src/ee4308_turtle/src/los.cpp
 los.hpp
-/home/haikal/a446b/src/ee4308_turtle/src/los.hpp
+/home/selva/team08/src/ee4308_turtle/src/los.hpp
 
-/home/haikal/a446b/src/ee4308_turtle/src/main.cpp
+/home/selva/team08/src/ee4308_turtle/src/main.cpp
 ros/ros.h
 -
 grid.hpp
-/home/haikal/a446b/src/ee4308_turtle/src/grid.hpp
+/home/selva/team08/src/ee4308_turtle/src/grid.hpp
 planner.hpp
-/home/haikal/a446b/src/ee4308_turtle/src/planner.hpp
+/home/selva/team08/src/ee4308_turtle/src/planner.hpp
 trajectory.hpp
-/home/haikal/a446b/src/ee4308_turtle/src/trajectory.hpp
+/home/selva/team08/src/ee4308_turtle/src/trajectory.hpp
 stdio.h
 -
 stdlib.h
@@ -94,13 +94,13 @@ geometry_msgs/PoseStamped.h
 geometry_msgs/PointStamped.h
 -
 
-/home/haikal/a446b/src/ee4308_turtle/src/planner.cpp
+/home/selva/team08/src/ee4308_turtle/src/planner.cpp
 planner.hpp
-/home/haikal/a446b/src/ee4308_turtle/src/planner.hpp
+/home/selva/team08/src/ee4308_turtle/src/planner.hpp
 
-/home/haikal/a446b/src/ee4308_turtle/src/trajectory.cpp
+/home/selva/team08/src/ee4308_turtle/src/trajectory.cpp
 trajectory.hpp
-/home/haikal/a446b/src/ee4308_turtle/src/trajectory.hpp
+/home/selva/team08/src/ee4308_turtle/src/trajectory.hpp
 
 /opt/ros/noetic/include/geometry_msgs/Point.h
 string

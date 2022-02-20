@@ -1,4 +1,4 @@
-prefix=/home/haikal/team08/devel
+prefix=/home/selva/team08/devel
 
 Name: ee4308_bringup
 Description: Description of ee4308_bringup

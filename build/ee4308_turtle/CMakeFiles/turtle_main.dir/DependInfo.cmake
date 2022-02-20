@@ -4,12 +4,12 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
-  "/home/haikal/a446b/src/ee4308_turtle/src/common.cpp" "/home/haikal/a446b/build/ee4308_turtle/CMakeFiles/turtle_main.dir/src/common.cpp.o"
-  "/home/haikal/a446b/src/ee4308_turtle/src/grid.cpp" "/home/haikal/a446b/build/ee4308_turtle/CMakeFiles/turtle_main.dir/src/grid.cpp.o"
-  "/home/haikal/a446b/src/ee4308_turtle/src/los.cpp" "/home/haikal/a446b/build/ee4308_turtle/CMakeFiles/turtle_main.dir/src/los.cpp.o"
-  "/home/haikal/a446b/src/ee4308_turtle/src/main.cpp" "/home/haikal/a446b/build/ee4308_turtle/CMakeFiles/turtle_main.dir/src/main.cpp.o"
-  "/home/haikal/a446b/src/ee4308_turtle/src/planner.cpp" "/home/haikal/a446b/build/ee4308_turtle/CMakeFiles/turtle_main.dir/src/planner.cpp.o"
-  "/home/haikal/a446b/src/ee4308_turtle/src/trajectory.cpp" "/home/haikal/a446b/build/ee4308_turtle/CMakeFiles/turtle_main.dir/src/trajectory.cpp.o"
+  "/home/selva/team08/src/ee4308_turtle/src/common.cpp" "/home/selva/team08/build/ee4308_turtle/CMakeFiles/turtle_main.dir/src/common.cpp.o"
+  "/home/selva/team08/src/ee4308_turtle/src/grid.cpp" "/home/selva/team08/build/ee4308_turtle/CMakeFiles/turtle_main.dir/src/grid.cpp.o"
+  "/home/selva/team08/src/ee4308_turtle/src/los.cpp" "/home/selva/team08/build/ee4308_turtle/CMakeFiles/turtle_main.dir/src/los.cpp.o"
+  "/home/selva/team08/src/ee4308_turtle/src/main.cpp" "/home/selva/team08/build/ee4308_turtle/CMakeFiles/turtle_main.dir/src/main.cpp.o"
+  "/home/selva/team08/src/ee4308_turtle/src/planner.cpp" "/home/selva/team08/build/ee4308_turtle/CMakeFiles/turtle_main.dir/src/planner.cpp.o"
+  "/home/selva/team08/src/ee4308_turtle/src/trajectory.cpp" "/home/selva/team08/build/ee4308_turtle/CMakeFiles/turtle_main.dir/src/trajectory.cpp.o"
   )
 set(CMAKE_CXX_COMPILER_ID "GNU")
 
@@ -22,7 +22,7 @@ set(CMAKE_TARGET_DEFINITIONS_CXX
 
 # The include file search paths:
 set(CMAKE_CXX_TARGET_INCLUDE_PATH
-  "/home/haikal/a446b/src/ee4308_turtle/include/ee4308_turtle"
+  "/home/selva/team08/src/ee4308_turtle/include/ee4308_turtle"
   "/opt/ros/noetic/include"
   "/opt/ros/noetic/share/xmlrpcpp/cmake/../../../include/xmlrpcpp"
   )

@@ -1,6 +1,6 @@
 file(REMOVE_RECURSE
-  "/home/haikal/a446b/devel/lib/ee4308_turtle/turtle_main"
-  "/home/haikal/a446b/devel/lib/ee4308_turtle/turtle_main.pdb"
+  "/home/selva/team08/devel/lib/ee4308_turtle/turtle_main"
+  "/home/selva/team08/devel/lib/ee4308_turtle/turtle_main.pdb"
   "CMakeFiles/turtle_main.dir/src/common.cpp.o"
   "CMakeFiles/turtle_main.dir/src/grid.cpp.o"
   "CMakeFiles/turtle_main.dir/src/los.cpp.o"

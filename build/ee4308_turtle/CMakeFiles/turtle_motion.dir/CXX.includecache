@@ -6,15 +6,15 @@
 
 #IncludeRegexTransform: 
 
-/home/haikal/a446b/src/ee4308_turtle/include/ee4308_turtle/common.hpp
+/home/selva/team08/src/ee4308_turtle/include/ee4308_turtle/common.hpp
 
-/home/haikal/a446b/src/ee4308_turtle/src/common.cpp
+/home/selva/team08/src/ee4308_turtle/src/common.cpp
 common.hpp
-/home/haikal/a446b/src/ee4308_turtle/src/common.hpp
+/home/selva/team08/src/ee4308_turtle/src/common.hpp
 cmath
 -
 
-/home/haikal/a446b/src/ee4308_turtle/src/motion.cpp
+/home/selva/team08/src/ee4308_turtle/src/motion.cpp
 ros/ros.h
 -
 stdio.h
@@ -36,7 +36,7 @@ std_msgs/Empty.h
 cstdlib
 -
 common.hpp
-/home/haikal/a446b/src/ee4308_turtle/src/common.hpp
+/home/selva/team08/src/ee4308_turtle/src/common.hpp
 
 /opt/ros/noetic/include/geometry_msgs/Point.h
 string
