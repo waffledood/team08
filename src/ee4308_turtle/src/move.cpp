@@ -6,6 +6,7 @@
 #include <geometry_msgs/PointStamped.h>
 #include <geometry_msgs/Twist.h>
 #include <std_msgs/Empty.h>
+#include <fstream>
 #include "common.hpp"
 
 bool target_changed = false;
@@ -36,6 +37,9 @@ int main(int argc, char **argv)
     ros::init(argc, argv, "turtle_move");
     ros::NodeHandle nh;
 
+    std::ofstream data_file;
+    data_file.open("/home/selva/team08/data.text");
+    
     // Get ROS Parameters
     bool enable_move;
     if (!nh.param("enable_move", enable_move, true))
@@ -112,6 +116,7 @@ int main(int argc, char **argv)
     double ang_acc, constrained_ang_acc;
     double cmd_ang_vel_prev = 0;
     Position target_alt;
+    double prop;
 
     ROS_INFO(" TMOVE : ===== BEGIN =====");
 
@@ -162,9 +167,20 @@ int main(int argc, char **argv)
                 cmd_ang_vel = sat(cmd_ang_vel + constrained_ang_acc * dt, max_lin_acc);
 
                 // Coupling linear velocity with angular error //
-                // if the angular error is > 45 degrees or < -45 degrees 
-                if (ang_error > (M_PI / 4) || ang_error < -(M_PI / 4)) {
-                    cmd_lin_vel = 0;
+                 if (ang_error < M_PI/4 && ang_error > -M_PI/4) {
+                    
+                    prop = 1;
+                    cmd_lin_vel *= prop;
+
+                } else {
+
+                    prop = ang_error / M_PI;
+                    if (ang_error > 0) {
+                        cmd_lin_vel *= 1-prop;
+                    } else {
+                        cmd_lin_vel *= -(1+prop);
+                    }
+                    ROS_INFO("BACKWARD MOVEMENT"); 
                 }
 
                 // Updating variables tracking variables' previous occurrences //
@@ -176,6 +192,9 @@ int main(int argc, char **argv)
                 msg_cmd.linear.x = cmd_lin_vel;
                 msg_cmd.angular.z = cmd_ang_vel;
                 pub_cmd.publish(msg_cmd);
+
+                // write to file
+                data_file << ros::Time::now().toSec() << "\t" << pos_error << "\t" << ang_error << "\t" << cmd_lin_vel << "\t" << cmd_ang_vel << "\t" << prop << std::endl;               
             }
 
             // verbose
