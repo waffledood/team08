@@ -11,6 +11,7 @@
 #include <nav_msgs/OccupancyGrid.h>
 #include <geometry_msgs/PoseStamped.h>
 #include <geometry_msgs/PointStamped.h>
+#include <unordered_set>
 
 std::vector<float> ranges;
 void cbScan(const sensor_msgs::LaserScan::ConstPtr &msg)
@@ -31,6 +32,13 @@ void cbPose(const geometry_msgs::PoseStamped::ConstPtr &msg)
     double cosy_cosp = 1 - 2 * (q.y * q.y + q.z * q.z);
     ang_rbt = atan2(siny_cosp, cosy_cosp);
 }
+
+// class positionhash {
+// public:
+//     double operator()(Position& p) {
+//         return p.x + p.y;
+//     }
+// };
 
 int main(int argc, char **argv)
 {
@@ -159,6 +167,12 @@ int main(int argc, char **argv)
     Position pos_goal = pos_rbt; // to trigger the reach goal
     int t = 0;                   // target num
     Position pos_target;
+    std::list<Position> list_points = {};
+    Position current_position;
+    // std::unordered_set<Position, positionhash> visited;
+    // double shortest_distance = 0; // shortest distance to goal
+    // Position pos_shortest = pos_rbt; // position of shortest point to goal
+    // bool possible = true;
 
     // wait for other nodes to load
     ROS_INFO(" TMAIN : Waiting for topics");
@@ -178,6 +192,12 @@ int main(int argc, char **argv)
         // update the occ grid
         grid.update(pos_rbt, ang_rbt, ranges);
 
+
+        // if (shortest_distance > sqrt(pow(pos_goal.x - pos_rbt.x, 2) + pow(pos_goal.y - pos_rbt.y,2)) && possible) {
+        //     pos_shortest = pos_rbt;
+        //     shortest_distance = sqrt(pow(pos_goal.x - pos_rbt.x, 2) + pow(pos_goal.y - pos_rbt.y,2));
+        // }
+
         // publish the map
         grid.write_to_msg(msg_grid_lo, msg_grid_inf);
         pub_grid_lo.publish(msg_grid_lo);
@@ -193,6 +213,10 @@ int main(int argc, char **argv)
             }
             // there are goals remaining
             pos_goal = goals[g];
+
+            // pos_shortest = pos_rbt;
+            // shortest_distance = sqrt(pow(pos_goal.x - pos_rbt.x, 2) + pow(pos_goal.y - pos_rbt.y,2));
+            // possible = true;
         }
         else if (!is_safe_trajectory(trajectory, grid))
         { // request a new path if path intersects inaccessible areas, or if there is no path
@@ -225,6 +249,48 @@ int main(int argc, char **argv)
                 if (path.empty())
                 { // path cannot be found
                     ROS_WARN(" TMAIN : No path found between robot and goal");
+                    goals.clear();
+
+                    list_points.push_back(goals[g]);
+                    while (!list_points.empty()) {
+                        current_position = list_points.front();
+                        list_points.pop_front();
+                        // if (visited.find(current_position) != visited.end()) {
+                        //     continue;
+                        // }
+                        path = planner.get(pos_rbt, current_position);
+                        if (!path.empty()) {// if path exists, robot can reach.
+                            pos_goal = current_position;
+                            break;
+                        } else { // flood fill
+
+                                list_points.push_back(Position(current_position.x - 0.5, current_position.y));
+                                // visited.insert(Position(current_position.x - 0.5, current_position.y ));
+
+                                list_points.push_back(Position(current_position.x + 0.5, current_position.y));
+                                // visited.insert(Position(current_position.x + 0.5, current_position.y));
+
+                                list_points.push_back(Position(current_position.x, current_position.y - 0.5));
+                                // visited.insert(Position(current_position.x, current_position.y - 0.5));
+
+                                list_points.push_back(Position(current_position.x, current_position.y + 0.5));
+                                // visited.insert(Position(current_position.x, current_position.y + 0.5));
+                        }
+
+                    }
+                    list_points.clear();
+                    // visited.clear();
+
+
+
+
+
+                    // if (possible) {
+                    //     pos_goal = pos_shortest;
+                    //     possible = false;
+                    //     // goals.emplace_back(pos_shortest);
+                    //     // g = 0;
+                    // }
                     // retry
                 }
                 else
