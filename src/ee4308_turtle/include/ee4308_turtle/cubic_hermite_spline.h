@@ -5,7 +5,7 @@
 
 #include "common.hpp"
 #include "cubic_polynomial.h"
-#include "spline.h"
+//#include "spline.h"
 
 class CubicHermiteSpline
 {
