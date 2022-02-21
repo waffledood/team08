@@ -29,6 +29,15 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 
+add_library(${PROJECT_NAME}
+  src/cubic_polynomial.cpp
+  src/cubic_hermite_spline.cpp
+  src/common.cpp
+)
+
+add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
+
 add_executable(
   turtle_main 
     src/main.cpp
@@ -37,7 +46,7 @@ add_executable(
     src/common.cpp
     src/los.cpp
     src/trajectory.cpp)
-target_link_libraries(turtle_main ${catkin_LIBRARIES})
+target_link_libraries(turtle_main ${catkin_LIBRARIES} ${PROJECT_NAME})
 
 
 add_executable(
@@ -52,3 +61,8 @@ add_executable(
     src/motion.cpp)
 target_link_libraries(turtle_motion ${catkin_LIBRARIES})
 #add_dependencies(motor ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+
+catkin_add_gtest(${PROJECT_NAME}-test test/cubic_hermite_spline_test.cpp)
+if(TARGET ${PROJECT_NAME}-test)
+  target_link_libraries(${PROJECT_NAME}-test ${catkin_LIBRARIES} ${PROJECT_NAME})
+endif()
