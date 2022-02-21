@@ -1,4 +1,5 @@
-#include "parametric_spline.h"
+//#include "parametric_spline.h"
+#include "cubic_hermite_spline.h"
 #include "trajectory.hpp"
 
 std::vector<Position> post_process(std::vector<Position> path, Grid &grid)  // returns the turning points
