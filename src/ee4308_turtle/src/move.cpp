@@ -135,13 +135,13 @@ int main(int argc, char **argv)
 
             ////////////////// MOTION CONTROLLER HERE //////////////////
             // Checking if target has been published 
-            if (target.x == 0 && target.y == 0) {
-                target_alt = pos_rbt;
-                // publish speeds
-                msg_cmd.linear.x = 0;
-                msg_cmd.angular.z = 0;
-                pub_cmd.publish(msg_cmd);
-            } else {
+            // if (target.x == 0 && target.y == 0) {
+            //     // target_alt = pos_rbt;
+            //     // // publish speeds
+            //     // msg_cmd.linear.x = 0;
+            //     // msg_cmd.angular.z = 0;
+            //     // pub_cmd.publish(msg_cmd);
+            // } else {
                 target_alt = target;
             
                 // Computing PID for linear velocity //
@@ -190,12 +190,13 @@ int main(int argc, char **argv)
 
                 // publish speeds //
                 msg_cmd.linear.x = cmd_lin_vel;
+                // msg_cmd.linear.x = 0.22;
                 msg_cmd.angular.z = cmd_ang_vel;
                 pub_cmd.publish(msg_cmd);
 
                 // write to file
                 data_file << ros::Time::now().toSec() << "\t" << pos_error << "\t" << ang_error << "\t" << cmd_lin_vel << "\t" << cmd_ang_vel << "\t" << prop << std::endl;               
-            }
+            // }
 
             // verbose
             if (verbose)

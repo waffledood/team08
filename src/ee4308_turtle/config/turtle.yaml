@@ -9,7 +9,7 @@ log_odds_cap: 20
 main_iter_rate: 25 
 
 # motion
-verbose_motion: false
+verbose_motion: true
 use_internal_odom: false #true by default -> uses the ground truth of the simulation)
 axle_track: 0.16
 wheel_radius: 0.033
