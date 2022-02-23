@@ -200,12 +200,12 @@ int main(int argc, char **argv)
         }
 
         // always try to publish the next target so it does not get stuck waiting for a new path.
-        if (dist_euc(pos_rbt, pos_target) < close_enough)
+        if (!trajectory.empty() && dist_euc(pos_rbt, pos_target) < close_enough)
         {
             if (--t < 0)
                 t = 0; // in case the close enough for target triggers. indices cannot be less than 0.
 
-            pos_target = trajectory[--t];
+            pos_target = trajectory[t];
             ROS_INFO(" TMAIN : Get next target (%f,%f)", pos_target.x, pos_target.y);
 
             // publish to target topic
