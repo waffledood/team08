@@ -37,8 +37,12 @@ int main(int argc, char **argv)
     ros::init(argc, argv, "turtle_move");
     ros::NodeHandle nh;
 
+    std::string dir;
+    nh.getParam("dir", dir);
+
     std::ofstream data_file;
     data_file.open("/home/selva/team08/data.text");
+    data_file.open(dir + "/data.txt");
     
     // Get ROS Parameters
     bool enable_move;
@@ -116,7 +120,7 @@ int main(int argc, char **argv)
     double ang_acc, constrained_ang_acc;
     double cmd_ang_vel_prev = 0;
     Position target_alt;
-    double dir , prop;
+    double direction , prop;
 
     ROS_INFO(" TMOVE : ===== BEGIN =====");
 
@@ -134,50 +138,41 @@ int main(int argc, char **argv)
             prev_time += dt;
 
             ////////////////// MOTION CONTROLLER HERE //////////////////
-            // Checking if target has been published 
-            // if (target.x == 0 && target.y == 0) {
-            //     // target_alt = pos_rbt;
-            //     // // publish speeds
-            //     // msg_cmd.linear.x = 0;
-            //     // msg_cmd.angular.z = 0;
-            //     // pub_cmd.publish(msg_cmd);
-            // } else {
-                target_alt = target;
             
-                // Computing PID for linear velocity //
-                pos_error = dist_euc(pos_rbt, target);
-                P_lin = Kp_lin * pos_error;
-                I_lin += (Ki_lin * dt);
-                D_lin = Kd_lin * (pos_error - pos_error_prev) / dt;
-                cmd_lin_vel = P_lin + I_lin + D_lin;
+            // Computing PID for linear velocity //
+            pos_error = dist_euc(pos_rbt, target);
+            P_lin = Kp_lin * pos_error;
+            I_lin += (Ki_lin * dt);
+            D_lin = Kd_lin * (pos_error - pos_error_prev) / dt;
+            cmd_lin_vel = P_lin + I_lin + D_lin;
 
-                // Computing PID for angular velocity //
-                ang_error = limit_angle(heading(pos_rbt, target) - ang_rbt);
-                if (ang_error < (-0.5 * M_PI)) {
-                    ang_error += M_PI;
-                    dir = -1.0;
-                } else if (ang_error > (0.5 * M_PI)){
-                    ang_error -= M_PI;
-                    dir = -1.0;
-                } else {
-                    dir = 1.0;
-                }
+            // Computing PID for angular velocity //
+            ang_error = limit_angle(heading(pos_rbt, target) - ang_rbt);
+            if (ang_error < (-0.5 * M_PI)) {
+                ang_error += M_PI;
+                direction = -1.0;
+            } else if (ang_error > (0.5 * M_PI)){
+                ang_error -= M_PI;
+                direction = -1.0;
+            } else {
+                direction = 1.0;
+            }
 
-                P_ang = Kp_ang * ang_error;
-                I_ang += (Ki_ang * dt);
-                D_ang = Kd_ang * (ang_error - ang_error_prev) / dt;
-                cmd_ang_vel = P_ang + I_ang + D_ang;
+            P_ang = Kp_ang * ang_error;
+            I_ang += (Ki_ang * dt);
+            D_ang = Kd_ang * (ang_error - ang_error_prev) / dt;
+            cmd_ang_vel = P_ang + I_ang + D_ang;
 
-                cmd_lin_vel *= (1.0 - abs(ang_error/M_PI))*dir;
+            cmd_lin_vel *= (1.0 - abs(ang_error/M_PI))*direction;
 
-                // Constraint for linear velocity //
-                lin_acc = (cmd_lin_vel - cmd_lin_vel_prev) / dt;
-                constrained_lin_acc = sat(lin_acc, max_lin_acc);
-                cmd_lin_vel = sat(cmd_lin_vel + constrained_lin_acc * dt, max_lin_vel);              
+            // Constraint for linear velocity //
+            lin_acc = (cmd_lin_vel - cmd_lin_vel_prev) / dt;
+            constrained_lin_acc = sat(lin_acc, max_lin_acc);
+            cmd_lin_vel = sat(cmd_lin_vel + constrained_lin_acc * dt, max_lin_vel);              
 
-                // Constraint for angular velocity //
-                ang_acc = (cmd_ang_vel - cmd_ang_vel_prev) / dt;
-                constrained_ang_acc = sat(ang_acc, max_ang_acc);
+            // Constraint for angular velocity //
+            ang_acc = (cmd_ang_vel - cmd_ang_vel_prev) / dt;
+            constrained_ang_acc = sat(ang_acc, max_ang_acc);
                 cmd_ang_vel = sat(cmd_ang_vel + constrained_ang_acc * dt, max_lin_acc);
 
                 // Coupling linear velocity with angular error //
