@@ -158,7 +158,7 @@ int main(int argc, char **argv)
                     dir = -1.0;
                 } else if (ang_error > (0.5 * M_PI)){
                     ang_error -= M_PI;
-                    dir = 1.0;
+                    dir = -1.0;
                 } else {
                     dir = 1.0;
                 }
