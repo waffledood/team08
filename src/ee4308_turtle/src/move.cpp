@@ -116,7 +116,7 @@ int main(int argc, char **argv)
     double ang_acc, constrained_ang_acc;
     double cmd_ang_vel_prev = 0;
     Position target_alt;
-    double prop;
+    double dir , prop;
 
     ROS_INFO(" TMOVE : ===== BEGIN =====");
 
@@ -150,38 +150,53 @@ int main(int argc, char **argv)
                 I_lin += (Ki_lin * dt);
                 D_lin = Kd_lin * (pos_error - pos_error_prev) / dt;
                 cmd_lin_vel = P_lin + I_lin + D_lin;
-                // Constraint for linear velocity //
-                lin_acc = (cmd_lin_vel - cmd_lin_vel_prev) / dt;
-                constrained_lin_acc = sat(lin_acc, max_lin_acc);
-                cmd_lin_vel = sat(cmd_lin_vel + constrained_lin_acc * dt, max_lin_vel);
 
                 // Computing PID for angular velocity //
                 ang_error = limit_angle(heading(pos_rbt, target) - ang_rbt);
+                if (ang_error < (-0.5 * M_PI)) {
+                    ang_error += M_PI;
+                    dir = -1.0;
+                } else if (ang_error > (0.5 * M_PI)){
+                    ang_error -= M_PI;
+                    dir = 1.0;
+                } else {
+                    dir = 1.0;
+                }
+
                 P_ang = Kp_ang * ang_error;
                 I_ang += (Ki_ang * dt);
                 D_ang = Kd_ang * (ang_error - ang_error_prev) / dt;
                 cmd_ang_vel = P_ang + I_ang + D_ang;
+
+                cmd_lin_vel *= (1.0 - abs(ang_error/M_PI))*dir;
+
+                // Constraint for linear velocity //
+                lin_acc = (cmd_lin_vel - cmd_lin_vel_prev) / dt;
+                constrained_lin_acc = sat(lin_acc, max_lin_acc);
+                cmd_lin_vel = sat(cmd_lin_vel + constrained_lin_acc * dt, max_lin_vel);              
+
                 // Constraint for angular velocity //
                 ang_acc = (cmd_ang_vel - cmd_ang_vel_prev) / dt;
                 constrained_ang_acc = sat(ang_acc, max_ang_acc);
                 cmd_ang_vel = sat(cmd_ang_vel + constrained_ang_acc * dt, max_lin_acc);
 
                 // Coupling linear velocity with angular error //
-                 if (ang_error < M_PI/4 && ang_error > -M_PI/4) {
+
+                //  if (ang_error < M_PI/4 && ang_error > -M_PI/4) {
                     
-                    prop = 1;
-                    cmd_lin_vel *= prop;
+                //     prop = 1;
+                //     cmd_lin_vel *= prop;
 
-                } else {
+                // } else {
 
-                    prop = ang_error / M_PI;
-                    if (ang_error > 0) {
-                        cmd_lin_vel *= 1-prop;
-                    } else {
-                        cmd_lin_vel *= -(1+prop);
-                    }
-                    ROS_INFO("BACKWARD MOVEMENT"); 
-                }
+                //     prop = ang_error / M_PI;
+                //     if (ang_error > 0) {
+                //         cmd_lin_vel *= 1-prop;
+                //     } else {
+                //         cmd_lin_vel *= -(1+prop);
+                //     }
+                //     ROS_INFO("BACKWARD MOVEMENT"); 
+                // }
 
                 // Updating variables tracking variables' previous occurrences //
                 pos_error_prev = pos_error;
@@ -190,7 +205,6 @@ int main(int argc, char **argv)
 
                 // publish speeds //
                 msg_cmd.linear.x = cmd_lin_vel;
-                // msg_cmd.linear.x = 0.22;
                 msg_cmd.angular.z = cmd_ang_vel;
                 pub_cmd.publish(msg_cmd);
 
