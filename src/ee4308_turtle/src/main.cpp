@@ -33,13 +33,6 @@ void cbPose(const geometry_msgs::PoseStamped::ConstPtr &msg)
     ang_rbt = atan2(siny_cosp, cosy_cosp);
 }
 
-// class positionhash {
-// public:
-//     double operator()(Position& p) {
-//         return p.x + p.y;
-//     }
-// };
-
 int main(int argc, char **argv)
 {
     ros::init(argc, argv, "turtle_main");
