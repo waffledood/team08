@@ -11,6 +11,7 @@
 #include <nav_msgs/OccupancyGrid.h>
 #include <geometry_msgs/PoseStamped.h>
 #include <geometry_msgs/PointStamped.h>
+#include <unordered_set>
 
 std::vector<float> ranges;
 void cbScan(const sensor_msgs::LaserScan::ConstPtr &msg)
@@ -159,6 +160,10 @@ int main(int argc, char **argv)
     Position pos_goal = pos_rbt; // to trigger the reach goal
     int t = 0;                   // target num
     Position pos_target;
+    std::list<Position> list_points = {};
+    Position current_position;
+    double current_distance = 0; // current distance from new goal to goal
+    double temp_distance = 0;
 
     // wait for other nodes to load
     ROS_INFO(" TMAIN : Waiting for topics");
@@ -193,6 +198,7 @@ int main(int argc, char **argv)
             }
             // there are goals remaining
             pos_goal = goals[g];
+
         }
         else if (!is_safe_trajectory(trajectory, grid))
         { // request a new path if path intersects inaccessible areas, or if there is no path
@@ -200,12 +206,12 @@ int main(int argc, char **argv)
         }
 
         // always try to publish the next target so it does not get stuck waiting for a new path.
-        if (dist_euc(pos_rbt, pos_target) < close_enough)
+        if (!trajectory.empty() && dist_euc(pos_rbt, pos_target) < close_enough)
         {
             if (--t < 0)
                 t = 0; // in case the close enough for target triggers. indices cannot be less than 0.
 
-            pos_target = trajectory[--t];
+            pos_target = trajectory[t];
             ROS_INFO(" TMAIN : Get next target (%f,%f)", pos_target.x, pos_target.y);
 
             // publish to target topic
@@ -225,6 +231,65 @@ int main(int argc, char **argv)
                 if (path.empty())
                 { // path cannot be found
                     ROS_WARN(" TMAIN : No path found between robot and goal");
+
+                    list_points.push_back(goals[g]);
+                    while (!list_points.empty()) {
+                        current_position = list_points.front();
+                        list_points.pop_front();
+
+                        path = planner.get(pos_rbt, current_position);
+                        if (!path.empty() && grid.get_cell(current_position)) {// if path exists, robot can reach.
+                            pos_goal = current_position;
+                            break;
+                        } else { // flood fill
+
+                            current_distance = sqrt(pow(pos_goal.x - current_position.x, 2) + pow(pos_goal.y - current_position.y, 2));
+                                
+                            temp_distance = sqrt(pow(pos_goal.x - (current_position.x - 0.5), 2) + pow(pos_goal.y - current_position.y, 2));
+                            if (temp_distance > current_distance) {
+                            list_points.push_back(Position(current_position.x - 0.5, current_position.y));
+                            }
+
+                            temp_distance = sqrt(pow(pos_goal.x - (current_position.x + 0.5), 2) + pow(pos_goal.y - current_position.y, 2));
+                            if (temp_distance > current_distance) {
+                            list_points.push_back(Position(current_position.x + 0.5, current_position.y));
+                            }
+
+                            temp_distance = sqrt(pow(pos_goal.x - current_position.x, 2) + pow(pos_goal.y - (current_position.y - 0.5), 2));
+                            if (temp_distance > current_distance) {
+                            list_points.push_back(Position(current_position.x, current_position.y - 0.5));
+                            }
+
+                            temp_distance = sqrt(pow(pos_goal.x - current_position.x, 2) + pow(pos_goal.y - (current_position.y + 0.5), 2));
+                            if (temp_distance > current_distance) {
+                            list_points.push_back(Position(current_position.x, current_position.y + 0.5));
+                            }
+
+                            temp_distance = sqrt(pow(pos_goal.x - (current_position.x - 0.35355), 2) + pow(pos_goal.y - (current_position.y - 0.35355), 2));
+                            if (temp_distance > current_distance) {
+                            list_points.push_back(Position(current_position.x - 0.35355, current_position.y - 0.35355));
+                            }
+
+                            temp_distance = sqrt(pow(pos_goal.x - (current_position.x - 0.35355), 2) + pow(pos_goal.y - (current_position.y + 0.35355), 2));
+                            if (temp_distance > current_distance) {
+                            list_points.push_back(Position(current_position.x - 0.35355, current_position.y + 0.35355));
+                            }
+
+                            temp_distance = sqrt(pow(pos_goal.x - (current_position.x + 0.35355), 2) + pow(pos_goal.y - (current_position.y - 0.35355), 2));
+                            if (temp_distance > current_distance) {
+                            list_points.push_back(Position(current_position.x + 0.35355, current_position.y - 0.35355));
+                            }
+
+                            temp_distance = sqrt(pow(pos_goal.x - (current_position.x + 0.35355), 2) + pow(pos_goal.y - (current_position.y + 0.35355), 2));
+                            if (temp_distance > current_distance) {
+                            list_points.push_back(Position(current_position.x + 0.35355, current_position.y + 0.35355));
+                            }
+
+                        }
+
+                    }
+                    list_points.clear();
+
                     // retry
                 }
                 else
@@ -292,8 +357,64 @@ int main(int argc, char **argv)
             { // robot lies on inaccessible cell, or if goal lies on inaccessible cell
                 if (!grid.get_cell(pos_rbt))
                     ROS_WARN(" TMAIN : Robot lies on inaccessible area. No path can be found");
-                if (!grid.get_cell(pos_goal))
+                if (!grid.get_cell(pos_goal)) {
                     ROS_WARN(" TMAIN : Goal lies on inaccessible area. No path can be found");
+                    list_points.push_back(goals[g]);
+                    while (!list_points.empty()) {
+                        current_position = list_points.front();
+                        list_points.pop_front();
+
+                        path = planner.get(pos_rbt, current_position);
+                        if (!path.empty() && grid.get_cell(current_position)) {// if path exists, robot can reach.
+                            pos_goal = current_position;
+                            break;
+                        } else { // flood fill
+
+                            current_distance = sqrt(pow(pos_goal.x - current_position.x, 2) + pow(pos_goal.y - current_position.y, 2));
+                                
+                            temp_distance = sqrt(pow(pos_goal.x - (current_position.x - 0.5), 2) + pow(pos_goal.y - current_position.y, 2));
+                            if (temp_distance > current_distance) {
+                            list_points.push_back(Position(current_position.x - 0.5, current_position.y));
+                            }
+
+                            temp_distance = sqrt(pow(pos_goal.x - (current_position.x + 0.5), 2) + pow(pos_goal.y - current_position.y, 2));
+                            if (temp_distance > current_distance) {
+                            list_points.push_back(Position(current_position.x + 0.5, current_position.y));
+                            }
+
+                            temp_distance = sqrt(pow(pos_goal.x - current_position.x, 2) + pow(pos_goal.y - (current_position.y - 0.5), 2));
+                            if (temp_distance > current_distance) {
+                            list_points.push_back(Position(current_position.x, current_position.y - 0.5));
+                            }
+
+                            temp_distance = sqrt(pow(pos_goal.x - current_position.x, 2) + pow(pos_goal.y - (current_position.y + 0.5), 2));
+                            if (temp_distance > current_distance) {
+                            list_points.push_back(Position(current_position.x, current_position.y + 0.5));
+                            }
+
+                            temp_distance = sqrt(pow(pos_goal.x - (current_position.x - 0.35355), 2) + pow(pos_goal.y - (current_position.y - 0.35355), 2));
+                            if (temp_distance > current_distance) {
+                            list_points.push_back(Position(current_position.x - 0.35355, current_position.y - 0.35355));
+                            }
+
+                            temp_distance = sqrt(pow(pos_goal.x - (current_position.x - 0.35355), 2) + pow(pos_goal.y - (current_position.y + 0.35355), 2));
+                            if (temp_distance > current_distance) {
+                            list_points.push_back(Position(current_position.x - 0.35355, current_position.y + 0.35355));
+                            }
+
+                            temp_distance = sqrt(pow(pos_goal.x - (current_position.x + 0.35355), 2) + pow(pos_goal.y - (current_position.y - 0.35355), 2));
+                            if (temp_distance > current_distance) {
+                            list_points.push_back(Position(current_position.x + 0.35355, current_position.y - 0.35355));
+                            }
+
+                            temp_distance = sqrt(pow(pos_goal.x - (current_position.x + 0.35355), 2) + pow(pos_goal.y - (current_position.y + 0.35355), 2));
+                            if (temp_distance > current_distance) {
+                            list_points.push_back(Position(current_position.x + 0.35355, current_position.y + 0.35355));
+                            }
+                        }
+                    }
+                    list_points.clear();   
+                }
             }
         }
 
