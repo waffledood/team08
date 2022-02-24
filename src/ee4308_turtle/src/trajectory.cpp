@@ -74,7 +74,6 @@ std::vector<Position> generate_trajectory(const std::vector<Position> &raw_path,
   {
     double dist = dist_euc(raw_path.at(i - 1), raw_path.at(i));
     double duration = dist / average_speed;
-    duration *= 1;
     total_duration += duration;
     t.push_back(total_duration);
   }
