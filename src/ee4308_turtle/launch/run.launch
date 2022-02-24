@@ -10,6 +10,7 @@
     <param name="max_x" value="$(env TURTLE_MAX_X)" type="double"/>
     <param name="max_y" value="$(env TURTLE_MAX_Y)" type="double"/>
     <param name="run" value="true" type="bool"/>
+    <param name="dir" value="$(find ee4308_turtle)"/>
 
     <!-- Nodes -->
     <node pkg="ee4308_turtle" type="turtle_main" name="turtle_main" output="screen" />

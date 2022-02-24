@@ -37,8 +37,11 @@ int main(int argc, char **argv)
     ros::init(argc, argv, "turtle_move");
     ros::NodeHandle nh;
 
+    std::string dir;
+    nh.getParam("dir", dir);
+
     std::ofstream data_file;
-    data_file.open("/home/selva/team08/data.text");
+    data_file.open(dir + "/data.txt");
     
     // Get ROS Parameters
     bool enable_move;
