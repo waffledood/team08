@@ -1,9 +1,13 @@
+#include <errno.h>
+#include <geometry_msgs/PointStamped.h>
+#include <geometry_msgs/PoseStamped.h>
+#include <nav_msgs/OccupancyGrid.h>
+#include <nav_msgs/Path.h>
 #include <ros/ros.h>
-#include "grid.hpp"
-#include "planner.hpp"
-#include "trajectory.hpp"
+#include <sensor_msgs/LaserScan.h>
 #include <stdio.h>
 #include <stdlib.h>
+
 #include <cmath>
 #include <errno.h>
 #include <sensor_msgs/LaserScan.h>
@@ -12,6 +16,11 @@
 #include <geometry_msgs/PoseStamped.h>
 #include <geometry_msgs/PointStamped.h>
 #include <unordered_set>
+
+#include "cubic_hermite_spline.h"
+#include "grid.hpp"
+#include "planner.hpp"
+#include "trajectory.hpp"
 
 std::vector<float> ranges;
 void cbScan(const sensor_msgs::LaserScan::ConstPtr &msg)
@@ -301,19 +310,7 @@ int main(int argc, char **argv)
 
                     ROS_INFO(" TMAIN : Begin trajectory generation over all turning points");
                     // generate trajectory over all turning points
-                    // doing the following manner results in the front of trajectory being the goal, and the back being close to the rbt position
-                    trajectory.clear();
-                    for (int m = 1; m < post_process_path.size(); ++m)
-                    {
-                        Position &turn_pt_next = post_process_path[m - 1];
-                        Position &turn_pt_cur = post_process_path[m];
-
-                        std::vector<Position> traj = generate_trajectory(turn_pt_next, turn_pt_cur, average_speed, target_dt, grid);
-                        for (Position &pos_tgt : traj)
-                        {
-                            trajectory.push_back(pos_tgt);
-                        }
-                    }
+                    trajectory = generate_trajectory(post_process_path, average_speed, target_dt, grid);
 
                     ROS_INFO(" TMAIN : Trajectory generation complete");
 
