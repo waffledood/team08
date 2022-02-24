@@ -6,7 +6,6 @@
 #include <geometry_msgs/PointStamped.h>
 #include <geometry_msgs/Twist.h>
 #include <std_msgs/Empty.h>
-#include <fstream>
 #include "common.hpp"
 
 bool target_changed = false;
@@ -37,9 +36,6 @@ int main(int argc, char **argv)
     ros::init(argc, argv, "turtle_move");
     ros::NodeHandle nh;
 
-    std::ofstream data_file;
-    data_file.open("/home/selva/team08/data.text");
-    
     // Get ROS Parameters
     bool enable_move;
     if (!nh.param("enable_move", enable_move, true))
@@ -108,15 +104,13 @@ int main(int argc, char **argv)
     double prev_time = ros::Time::now().toSec();
 
     ////////////////// DECLARE VARIABLES HERE //////////////////
-    double pos_error = 0, ang_error = 0, pos_error_prev = 0, ang_error_prev = 0;
-    double P_lin, I_lin, D_lin;
-    double P_ang, I_ang, D_ang;
-    double lin_acc, constrained_lin_acc;
-    double cmd_lin_vel_prev = 0;
-    double ang_acc, constrained_ang_acc;
-    double cmd_ang_vel_prev = 0;
-    Position target_alt;
-    double prop;
+    double sum_error_lin = 0;
+    double prev_error_lin = dist_euc(pos_rbt, target);
+    double prev_cmd_lin_vel = 0;
+    
+    double sum_error_ang = 0;
+    double prev_error_ang = limit_angle(heading(pos_rbt, target) - ang_rbt);
+    double prev_cmd_ang_vel = 0;
 
     ROS_INFO(" TMOVE : ===== BEGIN =====");
 
@@ -134,77 +128,59 @@ int main(int argc, char **argv)
             prev_time += dt;
 
             ////////////////// MOTION CONTROLLER HERE //////////////////
-            // Checking if target has been published 
-            if (target.x == 0 && target.y == 0) {
-                target_alt = pos_rbt;
-                // publish speeds
-                msg_cmd.linear.x = 0;
-                msg_cmd.angular.z = 0;
-                pub_cmd.publish(msg_cmd);
-            } else {
-                target_alt = target;
-            
-                // Computing PID for linear velocity //
-                pos_error = dist_euc(pos_rbt, target);
-                P_lin = Kp_lin * pos_error;
-                I_lin += (Ki_lin * dt);
-                D_lin = Kd_lin * (pos_error - pos_error_prev) / dt;
-                cmd_lin_vel = P_lin + I_lin + D_lin;
-                // Constraint for linear velocity //
-                lin_acc = (cmd_lin_vel - cmd_lin_vel_prev) / dt;
-                constrained_lin_acc = sat(lin_acc, max_lin_acc);
-                cmd_lin_vel = sat(cmd_lin_vel + constrained_lin_acc * dt, max_lin_vel);
-
-                // Computing PID for angular velocity //
-                ang_error = limit_angle(heading(pos_rbt, target) - ang_rbt);
-                P_ang = Kp_ang * ang_error;
-                I_ang += (Ki_ang * dt);
-                D_ang = Kd_ang * (ang_error - ang_error_prev) / dt;
-                cmd_ang_vel = P_ang + I_ang + D_ang;
-                // Constraint for angular velocity //
-                ang_acc = (cmd_ang_vel - cmd_ang_vel_prev) / dt;
-                constrained_ang_acc = sat(ang_acc, max_ang_acc);
-                cmd_ang_vel = sat(cmd_ang_vel + constrained_ang_acc * dt, max_lin_acc);
-
-                // Coupling linear velocity with angular error //
-                 if (ang_error < M_PI/4 && ang_error > -M_PI/4) {
-                    
-                    prop = 1;
-                    cmd_lin_vel *= prop;
-
-                } else {
-
-                    prop = ang_error / M_PI;
-                    if (ang_error > 0) {
-                        cmd_lin_vel *= 1-prop;
-                    } else {
-                        cmd_lin_vel *= -(1+prop);
-                    }
-                    ROS_INFO("BACKWARD MOVEMENT"); 
-                }
-
-                // Updating variables tracking variables' previous occurrences //
-                pos_error_prev = pos_error;
-                ang_error_prev = ang_error;
-                cmd_lin_vel_prev = cmd_lin_vel;
-
-                // publish speeds //
-                msg_cmd.linear.x = cmd_lin_vel;
-                msg_cmd.angular.z = cmd_ang_vel;
-                pub_cmd.publish(msg_cmd);
-
-                // write to file
-                data_file << ros::Time::now().toSec() << "\t" << pos_error << "\t" << ang_error << "\t" << cmd_lin_vel << "\t" << cmd_ang_vel << "\t" << prop << std::endl;               
+            // Check for invalid target
+            if (std::abs(target.x) < std::numeric_limits<double>::epsilon() &&
+                std::abs(target.y) < std::numeric_limits<double>::epsilon()) {
+              ROS_ERROR("Invalid target, stopping");
+              pub_cmd.publish(geometry_msgs::Twist());
+              continue;
             }
+
+            double error_lin = dist_euc(pos_rbt, target);
+            sum_error_lin += error_lin;
+            double p_lin = Kp_lin * error_lin;
+            double i_lin = Ki_lin * sum_error_lin;
+            double d_lin = Kd_lin * (error_lin - prev_error_lin) / dt;
+            prev_error_lin = error_lin;
+            cmd_lin_vel = p_lin + i_lin + d_lin;
+
+            double error_ang = limit_angle(heading(pos_rbt, target) - ang_rbt);
+            sum_error_ang += error_ang;
+            double p_ang = Kp_ang * error_ang;
+            double i_ang = Ki_ang * sum_error_ang;
+            double d_ang = Kd_ang * (error_ang - prev_error_ang) / dt;
+            prev_error_ang = error_ang;
+            cmd_ang_vel = p_ang + i_ang + d_ang;
+
+            // coupling
+            cmd_lin_vel *= pow(cos(error_ang), 2);
+
+            if (error_ang < -M_PI_2 || error_ang > M_PI_2)
+            {
+                cmd_lin_vel = 0;
+            }
+
+            // saturation
+            double lin_acc = (cmd_lin_vel - prev_cmd_lin_vel) / dt;
+            lin_acc = std::min(std::max(lin_acc, -max_lin_acc), max_lin_acc);
+            cmd_lin_vel = std::min(std::max(cmd_lin_vel + lin_acc * dt, -max_lin_vel), max_lin_vel);
+
+            double ang_acc = (cmd_ang_vel - prev_cmd_ang_vel) / dt;
+            ang_acc = std::min(std::max(ang_acc, -max_ang_acc), max_ang_acc);
+            cmd_ang_vel = std::min(std::max(cmd_ang_vel + ang_acc * dt, -max_ang_vel), max_ang_vel);
+
+            prev_cmd_lin_vel = cmd_lin_vel;
+            prev_cmd_ang_vel = cmd_ang_vel;
+
+            // publish speeds
+            msg_cmd.linear.x = cmd_lin_vel;
+            msg_cmd.angular.z = cmd_ang_vel;
+            pub_cmd.publish(msg_cmd);
 
             // verbose
             if (verbose)
             {
-                ROS_INFO(" TMOVE : FV(%2.3f) AV(%2.3f)", cmd_lin_vel, cmd_ang_vel);
-                ROS_INFO(" pos_error: (%2.3f), ang_error: (%2.3f)", pos_error, ang_error);
-                ROS_INFO(" Target_alt: (%3.3f, %3.3f)", target_alt.x, target_alt.y);
-                ROS_INFO(" Target: (%3.3f, %3.3f)", target.x, target.y);
-                ROS_INFO(" Pose_rbt: (%3.3f, %3.3f)", pos_rbt.x, pos_rbt.y);
+                ROS_INFO(" TMOVE :  FV(%6.3f) AV(%6.3f)", cmd_lin_vel, cmd_ang_vel);
             }
 
             // wait for rate
